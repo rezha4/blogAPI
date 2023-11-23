@@ -1,7 +1,6 @@
 import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
-import Comment from "./models/comments";
 
 const app = express();
 
@@ -10,9 +9,13 @@ mongoose.connect(mongoDB);
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "mongo connection error"));
 
-app.get("/", (req, res) => {
-  res.send("200");
-});
+const indexRouter = require("./routers/index");
+const postRouter = require("./routers/post");
+const commentRouter = require("./routers/comment");
+
+app.use("/", indexRouter);
+app.use("/posts", postRouter);
+app.use("/comments", commentRouter);
 
 app.listen(process.env.PORT, () => {
   console.log(`App is listening on port ${process.env.PORT}!`);
