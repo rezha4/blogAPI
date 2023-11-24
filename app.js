@@ -9,6 +9,22 @@ mongoose.connect(mongoDB);
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "mongo connection error"));
 
+// import User from "./models/users";
+
+// main().catch((err) => console.log(err));
+
+// async function main() {
+//   await mongoose.connect(mongoDB);
+//   await createUser("rezha", process.env.USER_PASSWORD);
+//   mongoose.connection.close();
+// }
+
+// async function createUser(username, password) {
+//   const user = new User({ username, password });
+//   await user.save();
+//   console.log(`${username} added to DB`);
+// }
+
 const indexRouter = require("./routers/index");
 const postRouter = require("./routers/post");
 const commentRouter = require("./routers/comment");
