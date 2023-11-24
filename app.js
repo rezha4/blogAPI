@@ -6,6 +6,7 @@ import session from "express-session";
 import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import User from "./models/users";
+import bcrypt from "bcryptjs";
 
 const app = express();
 
@@ -21,7 +22,8 @@ passport.use(
       if (!user) {
         return done(null, false, { message: "Incorrect username" });
       }
-      if (user.password !== password) {
+      const passwordMatch = await bcrypt.compare(password, user.password);
+      if (!passwordMatch) {
         return done(null, false, { message: "Incorrect password" });
       }
       return done(null, user);
@@ -54,15 +56,24 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
 
 import indexRouter from "./routers/user";
 import postRouter from "./routers/post";
 import commentRouter from "./routers/comment";
+import { brotliCompressSync } from "zlib";
 
 app.use("/", indexRouter);
 app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
 
 app.listen(process.env.PORT, () => {
-  console.log(`App is listening on port ${process.env.PORT}!`);
+  console.log(`
+  _______  _______  _______ 
+ |   _   ||       ||       |
+ |  |_|  ||    _  ||    _  |
+ |       ||   |_| ||   |_| |
+ |       ||    ___||    ___|
+ |   _   ||   |    |   |    
+ |__| |__||___|    |___|    ${process.env.PORT}!`);
 });
