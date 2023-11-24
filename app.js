@@ -1,6 +1,11 @@
 import "dotenv/config";
 import express from "express";
 import mongoose from "mongoose";
+import path from "path";
+import session from "express-session";
+import passport from "passport";
+import { Strategy as LocalStrategy } from "passport-local";
+import User from "./models/users";
 
 const app = express();
 
@@ -9,25 +14,50 @@ mongoose.connect(mongoDB);
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "mongo connection error"));
 
-// import User from "./models/users";
+passport.use(
+  new LocalStrategy(async (username, password, done) => {
+    try {
+      const user = await User.findOne({ username });
+      if (!user) {
+        return done(null, false, { message: "Incorrect username" });
+      }
+      if (user.password !== password) {
+        return done(null, false, { message: "Incorrect password" });
+      }
+      return done(null, user);
+    } catch (err) {
+      return done(err);
+    }
+  })
+);
 
-// main().catch((err) => console.log(err));
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
 
-// async function main() {
-//   await mongoose.connect(mongoDB);
-//   await createUser("rezha", process.env.USER_PASSWORD);
-//   mongoose.connection.close();
-// }
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await User.findById(id);
+    done(null, user);
+  } catch (err) {
+    done(err);
+  }
+});
 
-// async function createUser(username, password) {
-//   const user = new User({ username, password });
-//   await user.save();
-//   console.log(`${username} added to DB`);
-// }
+app.use(
+  session({
+    secret: process.env.SESSION,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+app.use(express.urlencoded({ extended: false }));
 
-const indexRouter = require("./routers/index");
-const postRouter = require("./routers/post");
-const commentRouter = require("./routers/comment");
+import indexRouter from "./routers/user";
+import postRouter from "./routers/post";
+import commentRouter from "./routers/comment";
 
 app.use("/", indexRouter);
 app.use("/posts", postRouter);
