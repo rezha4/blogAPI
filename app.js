@@ -7,8 +7,11 @@ import passport from "passport";
 import { Strategy as LocalStrategy } from "passport-local";
 import User from "./models/users";
 import bcrypt from "bcryptjs";
+import cors from "cors";
 
 const app = express();
+
+app.use(cors());
 
 const mongoDB = process.env.MONGO_URI;
 mongoose.connect(mongoDB);
@@ -68,12 +71,5 @@ app.use("/posts", postRouter);
 app.use("/comments", commentRouter);
 
 app.listen(process.env.PORT, () => {
-  console.log(`
-  _______  _______  _______ 
- |   _   ||       ||       |
- |  |_|  ||    _  ||    _  |
- |       ||   |_| ||   |_| |
- |       ||    ___||    ___|
- |   _   ||   |    |   |    
- |__| |__||___|    |___|    ${process.env.PORT}!`);
+  console.log(`~APP IS LISTENING ON ${process.env.PORT}!~`);
 });

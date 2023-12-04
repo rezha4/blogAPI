@@ -37,4 +37,13 @@ const userSignupPost = async (req, res, next) => {
   }
 };
 
-export { userLoginPost, userSignupPost };
+const userLogout = (req, res, next) => {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+};
+
+export { userLoginPost, userSignupPost, userLogout };
